@@ -17,7 +17,7 @@ defmodule BlockingBufferGuiWeb.Router do
   scope "/", BlockingBufferGuiWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive
   end
 
   # Other scopes may use custom stacks.
