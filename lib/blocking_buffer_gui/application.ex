@@ -9,7 +9,8 @@ defmodule BlockingBufferGui.Application do
   def start(_type, _args) do
     children = [
       BlockingBufferGuiWeb.Telemetry,
-      {DNSCluster, query: Application.get_env(:blocking_buffer_gui, :dns_cluster_query) || :ignore},
+      {DNSCluster,
+       query: Application.get_env(:blocking_buffer_gui, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: BlockingBufferGui.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: BlockingBufferGui.Finch},
