@@ -1,4 +1,5 @@
 defmodule BlockingBufferGuiWeb.HomeLive do
+  alias BlockingBuffer.Buffer
   alias BlockingBufferGui.Producer
   alias BlockingBufferGui.Consumer
   alias Phoenix.LiveView
@@ -6,21 +7,33 @@ defmodule BlockingBufferGuiWeb.HomeLive do
 
   @impl LiveView
   def mount(_params, _session, socket) do
-    producers = [
-      %Producer{id: 1, status: :idle},
-      %Producer{id: 2, status: :blocked},
-      %Producer{id: 3, status: :idle}
-    ]
+    producers =
+      for id <- 1..3 do
+        %Producer{id: id, status: :idle}
+      end
 
-    consumers = [
-      %Consumer{id: 1, status: :idle},
-      %Consumer{id: 2, status: :blocked},
-      %Consumer{id: 3, status: :idle}
-    ]
+    consumers =
+      for id <- 1..3 do
+        %Consumer{id: id, status: :idle}
+      end
 
-    queue_state = "TODO"
+    {:ok, buffer} = Buffer.start_link(3)
+    buffer_state = buffer_state(buffer)
 
-    {:ok, assign(socket, producers: producers, consumers: consumers, queue_state: queue_state)}
+    {:ok,
+     assign(socket,
+       producers: producers,
+       consumers: consumers,
+       buffer: buffer,
+       buffer_state: buffer_state
+     )}
+  end
+
+  defp buffer_state(buffer) do
+    buffer
+    |> Buffer.state()
+    |> Map.update!(:queue, &:queue.to_list/1)
+    |> inspect(pretty: true, width: 0)
   end
 
   defp border_class(:idle), do: "border-green-500"
