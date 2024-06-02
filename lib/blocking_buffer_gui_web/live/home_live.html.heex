@@ -9,13 +9,19 @@
         Producer <%= producer.id %>
       </h2>
       <div class="m-2">
+        <div class="inline-block border border-zinc-300 p-2" style="width: 2rem;">
+          <%= producer.value %>
+        </div>
+        ➜
         <.button
+          class="mx-1"
           phx-click="push"
           phx-value-id={producer.id}
           disabled={producer.status == :blocked}
         >
           Push
         </.button>
+        ➜
       </div>
     </div>
   </div>
@@ -33,9 +39,23 @@
         Consumer <%= consumer.id %>
       </h2>
       <div class="m-2">
-        <.button phx-click="pop" phx-value-id={consumer.id} disabled={consumer.status == :blocked}>
+        ➜
+        <.button
+          class="mx-1"
+          phx-click="pop"
+          phx-value-id={consumer.id}
+          disabled={consumer.status == :blocked}
+        >
           Pop
         </.button>
+        ➜
+        <div
+          id={"popped-value-#{consumer.id}"}
+          class="inline-block border border-zinc-300 p-2"
+          style="width: 2rem;"
+        >
+          <%= consumer.value || "—" %>
+        </div>
       </div>
     </div>
   </div>

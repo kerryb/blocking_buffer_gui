@@ -1,3 +1,3 @@
 defmodule BlockingBufferGui.Producer do
-  defstruct [:id, :status]
+  defstruct [:id, :value, :status]
 end

@@ -9,7 +9,7 @@ defmodule BlockingBufferGuiWeb.HomeLive do
   def mount(_params, _session, socket) do
     producers =
       for id <- 1..3 do
-        %Producer{id: id, status: :idle}
+        %Producer{id: id, value: id, status: :idle}
       end
 
     consumers =
@@ -39,7 +39,7 @@ defmodule BlockingBufferGuiWeb.HomeLive do
       send(pid, {:pushed, id})
     end)
 
-    {:noreply, update(socket, :producers, &update_status(&1, id, :blocked))}
+    {:noreply, update(socket, :producers, &update_producer(&1, id, :blocked))}
   end
 
   def handle_event("pop", params, socket) do
@@ -47,23 +47,23 @@ defmodule BlockingBufferGuiWeb.HomeLive do
     id = String.to_integer(params["id"])
 
     Task.start_link(fn ->
-      item = Buffer.pop(socket.assigns.buffer)
-      send(pid, {:popped, id, item})
+      value = Buffer.pop(socket.assigns.buffer)
+      send(pid, {:popped, id, value})
     end)
 
-    {:noreply, update(socket, :consumers, &update_status(&1, id, :blocked))}
+    {:noreply, update(socket, :consumers, &update_consumer(&1, id, :blocked, nil))}
   end
 
   @impl LiveView
   def handle_info({:pushed, id}, socket) do
     {:noreply,
-     update(socket, :producers, &update_status(&1, id, :idle))
+     update(socket, :producers, &update_producer(&1, id, :idle))
      |> assign(buffer_state: buffer_state(socket.assigns.buffer))}
   end
 
-  def handle_info({:popped, id, _item}, socket) do
+  def handle_info({:popped, id, value}, socket) do
     {:noreply,
-     update(socket, :consumers, &update_status(&1, id, :idle))
+     update(socket, :consumers, &update_consumer(&1, id, :idle, value))
      |> assign(buffer_state: buffer_state(socket.assigns.buffer))}
   end
 
@@ -74,10 +74,18 @@ defmodule BlockingBufferGuiWeb.HomeLive do
     |> inspect(pretty: true, width: 30)
   end
 
-  defp update_status(producers_or_consumers, id, status) do
-    producers_or_consumers
+  defp update_producer(producer, id, status) do
+    producer
     |> Enum.map(fn
       %{id: ^id} = item -> %{item | status: status}
+      item -> item
+    end)
+  end
+
+  defp update_consumer(consumer, id, status, value) do
+    consumer
+    |> Enum.map(fn
+      %{id: ^id} = item -> %{item | status: status, value: value}
       item -> item
     end)
   end
