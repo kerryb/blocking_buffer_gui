@@ -2,13 +2,20 @@
   <div class="flex flex-col text-center">
     <div
       :for={producer <- @producers}
+      id={"producer-#{producer.id}"}
       class={"m-2 border-2 #{border_class(producer.status)} rounded"}
     >
       <h2 class={"font-bold text-white #{bg_class(producer.status)}"}>
         Producer <%= producer.id %>
       </h2>
       <div class="m-2">
-        <.button phx-click="push" phx-value-id={producer.id} disabled={producer.status == :blocked}>Push</.button>
+        <.button
+          phx-click="push"
+          phx-value-id={producer.id}
+          disabled={producer.status == :blocked}
+        >
+          Push
+        </.button>
       </div>
     </div>
   </div>
@@ -19,13 +26,16 @@
   <div class="flex flex-col text-center">
     <div
       :for={consumer <- @consumers}
+      id={"consumer-#{consumer.id}"}
       class={"m-2 border-2 #{border_class(consumer.status)} rounded"}
     >
       <h2 class={"font-bold text-white #{bg_class(consumer.status)}"}>
         Consumer <%= consumer.id %>
       </h2>
       <div class="m-2">
-        <.button phx-click="pop" phx-value-id={consumer.id} disabled={consumer.status == :blocked}>Pop</.button>
+        <.button phx-click="pop" phx-value-id={consumer.id} disabled={consumer.status == :blocked}>
+          Pop
+        </.button>
       </div>
     </div>
   </div>
